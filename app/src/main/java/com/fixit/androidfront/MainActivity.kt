@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.fixit.androidfront.ui.theme.AndroidFrontTheme
 
-import com.fixit.androidfront.ui.screens.LoginScreen
+import com.fixit.androidfront.ui.screens.HomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             AndroidFrontTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen(
+                    HomeScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
