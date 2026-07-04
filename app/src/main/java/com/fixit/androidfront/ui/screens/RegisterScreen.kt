@@ -94,19 +94,21 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Step Indicator
+        val totalSteps = if (role == "CLIENT") 2 else 3
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-            for (i in 1..3) {
-                if (i == 3 && role == "CLIENT") continue
-                Box(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .height(8.dp)
-                        .width(if (i <= step) 32.dp else 16.dp)
-                        .background(
-                            if (i <= step) PrimaryYellow else OutlineGray,
-                            RoundedCornerShape(4.dp)
-                        )
-                )
+            for (i in 1..totalSteps) {
+                key(i) {
+                    Box(
+                        modifier = Modifier
+                            .padding(horizontal = 4.dp)
+                            .height(8.dp)
+                            .width(if (i <= step) 32.dp else 16.dp)
+                            .background(
+                                if (i <= step) PrimaryYellow else OutlineGray,
+                                RoundedCornerShape(4.dp)
+                            )
+                    )
+                }
             }
         }
 
