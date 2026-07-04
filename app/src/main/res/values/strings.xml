@@ -1,3 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Android Front</string>
+    <string name="app_name">Fix it!</string>
+
+    <!-- ── LandingScreen ─────────────────────────────────────── -->
+    <string name="landing_app_title">Fix it!</string>
+    <string name="landing_btn_login">Iniciar Sesión</string>
+    <string name="landing_btn_register">Registrarse</string>
+    <string name="landing_search_placeholder">Buscar servicios…</string>
+    <string name="landing_popular_categories">Categorías Populares</string>
+    <string name="landing_subtitle_categories_hint">Inicia sesión para ver las categorías disponibles.</string>
+    <string name="landing_role_hire_title">Quiero contratar</string>
+    <string name="landing_role_hire_subtitle">Crea una cuenta</string>
+    <string name="landing_role_work_title">Quiero Trabajar</string>
+    <string name="landing_role_work_subtitle">Crea una cuenta</string>
+
+    <!-- ── LoginScreen ───────────────────────────────────────── -->
+    <string name="login_title">Inicia sesión en tu cuenta</string>
+    <string name="login_subtitle_prefix">"o "</string>
+    <string name="login_subtitle_link">crea una cuenta nueva</string>
+    <string name="login_label_email">Correo electrónico</string>
+    <string name="login_placeholder_email">correo@ejemplo.com</string>
+    <string name="login_label_password">Contraseña</string>
+    <string name="login_placeholder_password">••••••••</string>
+    <string name="login_btn_enter">Entrar</string>
+    <string name="login_cd_logo">Logo de inicio de sesión</string>
+    <string name="login_cd_email_icon">Ícono de correo</string>
+    <string name="login_cd_lock_icon">Ícono de candado</string>
+    <string name="login_cd_arrow">Flecha de entrar</string>
+
+    <!-- ── RegisterScreen ───────────────────────────────────── -->
+    <string name="register_title">Crea una cuenta nueva</string>
+    <string name="register_subtitle_prefix">"o "</string>
+    <string name="register_subtitle_link">inicia sesión si ya tienes una</string>
+    <string name="register_cd_icon">Ícono de registro</string>
+    <!-- Step 1 -->
+    <string name="register_step1_title">Datos de acceso</string>
+    <string name="register_step1_subtitle">Ingresa tu correo y crea una contraseña segura.</string>
+    <string name="register_label_email">Correo electrónico</string>
+    <string name="register_label_password">Contraseña</string>
+    <!-- Step 2 -->
+    <string name="register_step2_title">Cuéntanos sobre ti</string>
+    <string name="register_label_name">Nombre completo</string>
+    <string name="register_label_phone">Teléfono (opcional)</string>
+    <string name="register_role_prompt">Busco en Fix it…</string>
+    <string name="register_role_hire_title">Contratar</string>
+    <string name="register_role_hire_desc">Busco profesionales</string>
+    <string name="register_role_work_title">Trabajar</string>
+    <string name="register_role_work_desc">Ofrezco servicios</string>
+    <!-- Step 3 -->
+    <string name="register_step3_title">Detalles profesionales</string>
+    <string name="register_label_specialty">Especialidad / Categoría</string>
+    <string name="register_label_mobility">Movilidad y disponibilidad</string>
+    <string name="register_check_vehicle">Cuento con vehículo propio</string>
+    <string name="register_check_travel">Puedo viajar a otros municipios</string>
+    <!-- Navigation buttons -->
+    <string name="register_btn_next">Siguiente</string>
+    <string name="register_btn_back">Atrás</string>
+    <string name="register_btn_submit">Registrarse</string>
+
+    <!-- ── HomeScreen ────────────────────────────────────────── -->
+    <string name="home_app_title">Fix it!</string>
+    <string name="home_btn_logout">CERRAR SESIÓN</string>
+    <string name="home_search_placeholder">Buscar servicios, profesionales…</string>
+    <string name="home_search_cd">Buscar</string>
+    <string name="home_cd_profile">Perfil</string>
+    <string name="home_cd_add_post">Agregar anuncio</string>
+    <string name="home_popular_categories">Categorías Populares</string>
+    <string name="home_no_categories">No hay categorías disponibles</string>
+    <string name="home_tab_search">Buscar Anuncios</string>
+    <string name="home_tab_mine">Mis Anuncios</string>
+    <string name="home_section_available">Anuncios Disponibles</string>
+    <string name="home_section_mine">Tus Publicaciones</string>
+    <string name="home_empty_posts">No se encontraron anuncios</string>
+    <string name="home_welcome_client_desc">Aquí puedes publicar trabajos y buscar profesionales.</string>
+    <string name="home_welcome_provider_desc">Aquí puedes buscar oportunidades de trabajo.</string>
+    <string name="home_welcome_prefix">Bienvenido </string>
+    <string name="home_rating_cd">Calificación</string>
+
+    <!-- ── ProfileScreen ─────────────────────────────────────── -->
+    <string name="profile_title">Mi Perfil</string>
+    <string name="profile_subtitle">Información personal y detalles de contacto.</string>
+    <string name="profile_photo_label">Foto de Perfil</string>
+    <string name="profile_btn_pick_photo">Elegir Foto</string>
+    <string name="profile_cd_photo">Foto de perfil</string>
+    <string name="profile_cd_upload">Subir foto</string>
+    <string name="profile_cd_back">Volver</string>
+    <string name="profile_label_name">Nombre Completo</string>
+    <string name="profile_label_phone">Teléfono de Contacto</string>
+    <string name="profile_label_specialty">Especialidad / Categoría Principal</string>
+    <string name="profile_label_address">Dirección (Dep, Mun, Zona)</string>
+    <string name="profile_label_bio">Acerca de ti (Biografía)</string>
+    <string name="profile_btn_save">Guardar Perfil</string>
+    <string name="profile_cd_save">Guardar</string>
+
+    <!-- ── CreateJobPostScreen ───────────────────────────────── -->
+    <string name="create_post_title_client">Publicar Anuncio</string>
+    <string name="create_post_title_provider">Ofrecer servicios</string>
+    <string name="create_post_subtitle_client">Describe lo que necesitas y publicaremos tu anuncio.</string>
+    <string name="create_post_subtitle_provider">Describe los servicios que ofreces para que los clientes puedan contactarte.</string>
+    <string name="create_post_cd_back">Volver</string>
+    <string name="create_post_label_title">Título del anuncio *</string>
+    <string name="create_post_label_category">Categoría del servicio *</string>
+    <string name="create_post_label_description">Descripción detallada *</string>
+    <string name="create_post_label_budget">Presupuesto estimado (opcional)</string>
+    <string name="create_post_label_location">Ubicación</string>
+    <string name="create_post_label_images">Imágenes de referencia</string>
+    <string name="create_post_btn_pick_images">Seleccionar Imágenes</string>
+    <string name="create_post_cd_add_image">Agregar imagen</string>
+    <string name="create_post_btn_cancel">Cancelar</string>
+    <string name="create_post_btn_publish">Publicar</string>
 </resources>

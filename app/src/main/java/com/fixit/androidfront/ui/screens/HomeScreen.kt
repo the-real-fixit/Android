@@ -19,16 +19,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.fixit.androidfront.ui.theme.*
-import com.fixit.androidfront.ui.viewmodels.HomeViewModel
-import com.fixit.androidfront.ui.viewmodels.HomeState
-import com.fixit.androidfront.data.JobPost
+import com.fixit.androidfront.R
 import com.fixit.androidfront.data.Category
+import com.fixit.androidfront.data.JobPost
+import com.fixit.androidfront.ui.theme.*
+import com.fixit.androidfront.ui.viewmodels.HomeState
+import com.fixit.androidfront.ui.viewmodels.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,8 +44,7 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = viewModel()
 ) {
     val homeState by homeViewModel.homeState.collectAsState()
-    
-    // Refresh data when navigating back
+
     LaunchedEffect(Unit) {
         homeViewModel.fetchHomeData()
     }
@@ -59,56 +60,63 @@ fun HomeScreen(
                 containerColor = PrimaryYellow,
                 contentColor = Color.Black
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Post")
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.home_cd_add_post))
             }
         }
     ) { paddingValues ->
-        if (homeState is HomeState.Loading) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = PrimaryYellow)
+        when (homeState) {
+            is HomeState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) { CircularProgressIndicator(color = PrimaryYellow) }
             }
-        } else if (homeState is HomeState.Error) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text(text = (homeState as HomeState.Error).message, color = Color.Red)
+            is HomeState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) { Text(text = (homeState as HomeState.Error).message, color = Color.Red) }
             }
-        } else if (homeState is HomeState.Success) {
-            val state = homeState as HomeState.Success
-            
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(BackgroundGray)
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(vertical = 16.dp)
-            ) {
-                item {
-                    val userName = state.profile?.name ?: "Usuario"
-                    val userRole = state.profile?.role ?: ""
-                    WelcomeBanner(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        name = userName,
-                        role = userRole
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                }
+            is HomeState.Success -> {
+                val state = homeState as HomeState.Success
 
-                item {
-                    PopularCategories(
-                        categories = state.categories,
-                        onNavigateToCategory = onNavigateToCategory
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                }
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(BackgroundGray)
+                        .padding(paddingValues),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    item {
+                        val userName = state.profile?.name ?: stringResource(R.string.home_welcome_prefix)
+                        val userRole = state.profile?.role ?: ""
+                        WelcomeBanner(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            name = userName,
+                            role = userRole
+                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
 
-                item {
-                    HomeTabsAndAds(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        jobPosts = state.jobPosts,
-                        myAds = state.myAds,
-                        onNavigateToJobDetail = onNavigateToJobDetail
-                    )
+                    item {
+                        PopularCategories(
+                            categories = state.categories,
+                            onNavigateToCategory = onNavigateToCategory
+                        )
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+
+                    item {
+                        HomeTabsAndAds(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            jobPosts = state.jobPosts,
+                            myAds = state.myAds,
+                            onNavigateToJobDetail = onNavigateToJobDetail
+                        )
+                    }
                 }
             }
+            else -> Unit
         }
     }
 }
@@ -127,7 +135,7 @@ fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Fix it!",
+                text = stringResource(R.string.home_app_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = TextDark
@@ -136,13 +144,15 @@ fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Filled.Person,
-                    contentDescription = "Profile",
-                    modifier = Modifier.size(28.dp).clickable { onNavigateToProfile() },
+                    contentDescription = stringResource(R.string.home_cd_profile),
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clickable { onNavigateToProfile() },
                     tint = TextDark
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "CERRAR SESIÓN",
+                    text = stringResource(R.string.home_btn_logout),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextDark,
@@ -150,9 +160,9 @@ fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         OutlinedTextField(
             value = "",
             onValueChange = {},
@@ -160,8 +170,14 @@ fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
                 .fillMaxWidth()
                 .height(50.dp)
                 .background(SurfaceWhite, RoundedCornerShape(8.dp)),
-            placeholder = { Text("Buscar servicios, profesionales...", color = TextGray) },
-            leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = "Search", tint = TextGray) },
+            placeholder = { Text(stringResource(R.string.home_search_placeholder), color = TextGray) },
+            leadingIcon = {
+                Icon(
+                    Icons.Outlined.Search,
+                    contentDescription = stringResource(R.string.home_search_cd),
+                    tint = TextGray
+                )
+            },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color.Transparent,
@@ -176,34 +192,33 @@ fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
 
 @Composable
 fun WelcomeBanner(modifier: Modifier = Modifier, name: String, role: String) {
+    val description = if (role == "CLIENT")
+        stringResource(R.string.home_welcome_client_desc)
+    else
+        stringResource(R.string.home_welcome_provider_desc)
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(24.dp)
-        ) {
+        Column(modifier = Modifier.padding(24.dp)) {
             Text(
-                text = "Bienvenido $name",
+                text = stringResource(R.string.home_welcome_prefix) + name,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
                 color = TextDark
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = if (role == "CLIENT") "Aquí puedes publicar trabajos y buscar profesionales." else "Aquí puedes buscar oportunidades de trabajo.",
-                fontSize = 14.sp,
-                color = TextGray
-            )
+            Text(text = description, fontSize = 14.sp, color = TextGray)
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
 
 fun getIconForCategory(categoryName: String): ImageVector {
-    return when(categoryName) {
+    return when (categoryName) {
         "Electricista" -> Icons.Outlined.Bolt
         "Plomería" -> Icons.Outlined.Build
         "Pintura" -> Icons.Outlined.FormatPaint
@@ -225,16 +240,20 @@ fun getIconForCategory(categoryName: String): ImageVector {
 fun PopularCategories(categories: List<Category>, onNavigateToCategory: (String) -> Unit = {}) {
     Column {
         Text(
-            text = "Categorías Populares",
+            text = stringResource(R.string.home_popular_categories),
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = TextDark,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         if (categories.isEmpty()) {
-            Text("No hay categorías disponibles", modifier = Modifier.padding(horizontal = 16.dp), color = TextGray)
+            Text(
+                stringResource(R.string.home_no_categories),
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = TextGray
+            )
         } else {
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
@@ -285,39 +304,43 @@ fun HomeTabsAndAds(
     onNavigateToJobDetail: (String) -> Unit = {}
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    
     val currentList = if (selectedTabIndex == 0) jobPosts else myAds
 
     Column(modifier = modifier) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
-        ) {
+        Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
             TabItem(
-                text = "Buscar Anuncios",
+                text = stringResource(R.string.home_tab_search),
                 isSelected = selectedTabIndex == 0,
                 modifier = Modifier.clickable { selectedTabIndex = 0 }
             )
             Spacer(modifier = Modifier.width(24.dp))
             TabItem(
-                text = "Mis Anuncios",
+                text = stringResource(R.string.home_tab_mine),
                 isSelected = selectedTabIndex == 1,
                 modifier = Modifier.clickable { selectedTabIndex = 1 }
             )
         }
-        
+
         HorizontalDivider(color = OutlineGray)
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         Text(
-            text = if (selectedTabIndex == 0) "Anuncios Disponibles" else "Tus Publicaciones",
+            text = if (selectedTabIndex == 0)
+                stringResource(R.string.home_section_available)
+            else
+                stringResource(R.string.home_section_mine),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = TextDark
         )
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         if (currentList.isEmpty()) {
-            Text("No se encontraron anuncios", color = TextGray, modifier = Modifier.padding(16.dp))
+            Text(
+                stringResource(R.string.home_empty_posts),
+                color = TextGray,
+                modifier = Modifier.padding(16.dp)
+            )
         } else {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 currentList.forEach { post ->
@@ -388,16 +411,11 @@ fun AdCard(
             ) {
                 Icon(Icons.Outlined.Image, contentDescription = null, tint = TextGray)
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
+
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark
-                )
+                Text(text = title, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextDark)
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(16.dp), tint = TextGray)
@@ -409,10 +427,15 @@ fun AdCard(
                     Text(text = categoryName, fontSize = 12.sp, color = PrimaryYellow, fontWeight = FontWeight.Bold)
                 }
             }
-            
+
             Column(horizontalAlignment = Alignment.End) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Star, contentDescription = "Rating", tint = PrimaryYellow, modifier = Modifier.size(16.dp))
+                    Icon(
+                        Icons.Filled.Star,
+                        contentDescription = stringResource(R.string.home_rating_cd),
+                        tint = PrimaryYellow,
+                        modifier = Modifier.size(16.dp)
+                    )
                     Text(text = rating, fontWeight = FontWeight.Bold, color = TextDark)
                 }
                 if (price != null) {

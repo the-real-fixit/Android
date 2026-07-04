@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fixit.androidfront.R
 import com.fixit.androidfront.ui.theme.AndroidFrontTheme
 import com.fixit.androidfront.ui.viewmodels.LoginState
 import com.fixit.androidfront.ui.viewmodels.LoginViewModel
@@ -46,7 +48,7 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
             onLoginSuccess()
-            loginViewModel.resetState() // Reset to avoid multiple navigations
+            loginViewModel.resetState()
         }
     }
 
@@ -58,15 +60,15 @@ fun LoginScreen(
     ) {
         Column(
             modifier = Modifier
-                .widthIn(max = 450.dp) // Responsiveness: Prevents stretching on tablets
+                .widthIn(max = 450.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            // Top Icon (Similar to the arrow entering a door from the design)
+
             Icon(
                 imageVector = Icons.Filled.Person,
-                contentDescription = "Login Logo",
+                contentDescription = stringResource(R.string.login_cd_logo),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(64.dp)
             )
@@ -75,7 +77,7 @@ fun LoginScreen(
 
             // Title
             Text(
-                text = "Inicia sesión en tu cuenta",
+                text = stringResource(R.string.login_title),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -84,20 +86,20 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Subtitle with clickable styling part
-            val subtitleText = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = Color.Gray)) {
-                    append("O ")
-                }
-                withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)) {
-                    append("crea una cuenta nueva")
-                }
+            // Subtitle with clickable link
+            Row {
+                Text(
+                    text = stringResource(R.string.login_subtitle_prefix),
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = stringResource(R.string.login_subtitle_link),
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                    modifier = Modifier.clickable { onNavigateToRegister() }
+                )
             }
-            Text(
-                text = subtitleText,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.clickable { onNavigateToRegister() }
-            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -132,9 +134,9 @@ fun LoginScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
-                    // Email Field Label
+                    // Email field
                     Text(
-                        text = "Correo electrónico",
+                        text = stringResource(R.string.login_label_email),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
@@ -143,9 +145,13 @@ fun LoginScreen(
                         value = email,
                         onValueChange = { email = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("correo@algo.com", color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.login_placeholder_email), color = Color.Gray) },
                         leadingIcon = {
-                            Icon(imageVector = Icons.Outlined.Email, contentDescription = "Email Icon", tint = Color.Gray)
+                            Icon(
+                                imageVector = Icons.Outlined.Email,
+                                contentDescription = stringResource(R.string.login_cd_email_icon),
+                                tint = Color.Gray
+                            )
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -154,9 +160,9 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Password Field Label
+                    // Password field
                     Text(
-                        text = "Contraseña",
+                        text = stringResource(R.string.login_label_password),
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
@@ -165,9 +171,13 @@ fun LoginScreen(
                         value = password,
                         onValueChange = { password = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("........", color = Color.Gray) },
+                        placeholder = { Text(stringResource(R.string.login_placeholder_password), color = Color.Gray) },
                         leadingIcon = {
-                            Icon(imageVector = Icons.Outlined.Lock, contentDescription = "Lock Icon", tint = Color.Gray)
+                            Icon(
+                                imageVector = Icons.Outlined.Lock,
+                                contentDescription = stringResource(R.string.login_cd_lock_icon),
+                                tint = Color.Gray
+                            )
                         },
                         singleLine = true,
                         visualTransformation = PasswordVisualTransformation(),
@@ -202,14 +212,14 @@ fun LoginScreen(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 Text(
-                                    text = "Entrar",
+                                    text = stringResource(R.string.login_btn_enter),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = "Entrar arrow",
+                                    contentDescription = stringResource(R.string.login_cd_arrow),
                                     modifier = Modifier.size(20.dp)
                                 )
                             }

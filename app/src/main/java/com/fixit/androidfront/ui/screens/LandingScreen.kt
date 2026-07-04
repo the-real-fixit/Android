@@ -3,7 +3,6 @@ package com.fixit.androidfront.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -14,10 +13,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fixit.androidfront.R
 import com.fixit.androidfront.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,23 +32,23 @@ fun LandingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { 
+                title = {
                     Text(
-                        "Fix it!", 
-                        fontWeight = FontWeight.Black, 
+                        stringResource(R.string.landing_app_title),
+                        fontWeight = FontWeight.Black,
                         fontSize = 24.sp,
                         color = Color.Black
-                    ) 
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = PrimaryYellow
                 ),
                 actions = {
                     TextButton(onClick = onNavigateToLogin) {
-                        Text("Iniciar Sesión", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.landing_btn_login), color = Color.Black, fontWeight = FontWeight.Bold)
                     }
                     TextButton(onClick = onNavigateToRegister) {
-                        Text("Registrarse", color = Color.Black, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.landing_btn_register), color = Color.Black, fontWeight = FontWeight.Bold)
                     }
                 }
             )
@@ -61,7 +61,7 @@ fun LandingScreen(
                 .padding(innerPadding)
                 .verticalScroll(scrollState)
         ) {
-            // Search Bar (simplified)
+            // Search Bar
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -71,8 +71,8 @@ fun LandingScreen(
                 TextField(
                     value = "",
                     onValueChange = {},
-                    placeholder = { Text("Buscar servicios...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    placeholder = { Text(stringResource(R.string.landing_search_placeholder)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.home_search_cd)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -86,21 +86,7 @@ fun LandingScreen(
                 )
             }
 
-            // Hero Carousel Placeholder
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .padding(16.dp)
-                    .background(Gray900, RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    "Hero Carousel Placeholder\n(Servicios Profesionales)", 
-                    color = Color.White,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Role Selection
             Row(
@@ -110,18 +96,18 @@ fun LandingScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 RoleCard(
-                    title = "Quiero contratar",
-                    subtitle = "Crea una cuenta",
+                    title = stringResource(R.string.landing_role_hire_title),
+                    subtitle = stringResource(R.string.landing_role_hire_subtitle),
                     onClick = onNavigateToRegister
                 )
                 RoleCard(
-                    title = "Quiero Trabajar",
-                    subtitle = "Crea una cuenta",
+                    title = stringResource(R.string.landing_role_work_title),
+                    subtitle = stringResource(R.string.landing_role_work_subtitle),
                     onClick = onNavigateToRegister
                 )
             }
 
-            // Categorías Populares
+            // Popular Categories header (no static list — real data lives in HomeScreen)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -129,44 +115,20 @@ fun LandingScreen(
                     .padding(vertical = 24.dp)
             ) {
                 Text(
-                    text = "Categorías Populares",
+                    text = stringResource(R.string.landing_popular_categories),
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     color = TextDark,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    textAlign = TextAlign.Center
+                        .padding(bottom = 8.dp, start = 16.dp, end = 16.dp)
                 )
-                
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(5) { index ->
-                        Box(
-                            modifier = Modifier
-                                .size(120.dp, 100.dp)
-                                .background(SurfaceWhite, RoundedCornerShape(8.dp))
-                                .padding(8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Categoría $index", color = TextDark)
-                        }
-                    }
-                }
-            }
-            
-            // Highlighted Ads Placeholder
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .padding(16.dp)
-                    .background(OutlineGray, RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Highlighted Ads Placeholder", color = TextGray)
+                Text(
+                    text = stringResource(R.string.landing_subtitle_categories_hint),
+                    fontSize = 13.sp,
+                    color = TextGray,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
         }
     }

@@ -21,8 +21,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Usa la URL de la nube para pruebas en dispositivos físicos
+            buildConfigField("String", "BASE_URL", "\"https://fix-it-zcgs.onrender.com/\"")
+            isDebuggable = true
+        }
         release {
-            isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", "\"https://fix-it-zcgs.onrender.com/\"")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -38,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true   // required to generate BuildConfig fields
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -68,7 +76,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    
+
     // Retrofit & Networking
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")

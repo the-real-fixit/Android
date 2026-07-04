@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Configuration
+    ────────────────────────────────────────────────────────────────
+    PRODUCTION  → HTTPS only (no cleartext traffic permitted)
+    DEBUG build → HTTP additionally allowed to emulator/localhost
+    ────────────────────────────────────────────────────────────────
+-->
+<network-security-config>
+
+    <!--
+        Base rule: all connections must use HTTPS in production.
+        cleartextTrafficPermitted="false" blocks unencrypted HTTP globally.
+    -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- Trust CAs installed on the device (standard behaviour) -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!--
+        Debug-only overrides:
+        • Also trust user-installed CAs (e.g. Charles Proxy, mitmproxy)
+          so you can inspect HTTPS traffic during development.
+    -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+
+    <!--
+        Allow plain HTTP to the Android emulator's host alias (10.0.2.2)
+        and to localhost.  These domains are never reachable from the internet,
+        so there is no security risk.
+        This rule applies in ALL builds — in release the BASE_URL is the
+        production HTTPS URL so this rule is never triggered in practice.
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+
+</network-security-config>

@@ -1,6 +1,7 @@
 package com.fixit.androidfront.data
 
 import android.content.Context
+import com.fixit.androidfront.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,17 +23,23 @@ class AuthInterceptor(private val context: Context) : Interceptor {
 }
 
 object ApiClient {
-    // URL de producción en Render
-    private const val BASE_URL = "https://fix-it-zcgs.onrender.com/"
+    // URL is injected at compile time via BuildConfig:
+    //   debug   → http://10.0.2.2:3000/  (Android emulator → host localhost)
+    //   release → https://fix-it-zcgs.onrender.com/
+    private val BASE_URL get() = BuildConfig.BASE_URL
 
     fun getRetrofit(context: Context): Retrofit {
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-
         val client = OkHttpClient.Builder()
             .addInterceptor(AuthInterceptor(context))
-            .addInterceptor(loggingInterceptor)
+            .apply {
+                // Only attach the verbose body logger in debug builds
+                if (BuildConfig.DEBUG) {
+                    val loggingInterceptor = HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    }
+                    addInterceptor(loggingInterceptor)
+                }
+            }
             .build()
 
         return Retrofit.Builder()
