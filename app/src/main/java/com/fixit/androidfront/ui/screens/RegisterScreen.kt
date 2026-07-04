@@ -22,8 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.IntrinsicSize
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fixit.androidfront.R
@@ -41,6 +43,9 @@ fun RegisterScreen(
     // Step 1
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
 
     // Step 2
     var name by remember { mutableStateOf("") }
@@ -126,7 +131,18 @@ fun RegisterScreen(
 
                 AnimatedContent(targetState = step, label = "step_animation") { currentStep ->
                     when (currentStep) {
-                        1 -> StepOne(email, password, { email = it }, { password = it })
+                        1 -> StepOne(
+                            email = email,
+                            pass = password,
+                            confirmPass = confirmPassword,
+                            passwordVisible = passwordVisible,
+                            confirmPasswordVisible = confirmPasswordVisible,
+                            onEmail = { email = it },
+                            onPass = { password = it },
+                            onConfirmPass = { confirmPassword = it },
+                            onTogglePasswordVisible = { passwordVisible = !passwordVisible },
+                            onToggleConfirmPasswordVisible = { confirmPasswordVisible = !confirmPasswordVisible }
+                        )
                         2 -> StepTwo(name, phone, role, { name = it }, { phone = it }, { role = it })
                         3 -> StepThree(hasVehicle, canTravel, { hasVehicle = it }, { canTravel = it })
                     }
@@ -153,7 +169,7 @@ fun RegisterScreen(
                     }
 
                     val canAdvance = when (step) {
-                        1 -> email.isNotBlank() && password.length >= 6
+                        1 -> email.isNotBlank() && password.length >= 6 && password == confirmPassword
                         2 -> name.isNotBlank() && role.isNotBlank()
                         else -> true
                     }
@@ -190,7 +206,18 @@ fun RegisterScreen(
 }
 
 @Composable
-fun StepOne(email: String, pass: String, onEmail: (String) -> Unit, onPass: (String) -> Unit) {
+fun StepOne(
+    email: String,
+    pass: String,
+    confirmPass: String,
+    passwordVisible: Boolean,
+    confirmPasswordVisible: Boolean,
+    onEmail: (String) -> Unit,
+    onPass: (String) -> Unit,
+    onConfirmPass: (String) -> Unit,
+    onTogglePasswordVisible: () -> Unit,
+    onToggleConfirmPasswordVisible: () -> Unit
+) {
     Column {
         Text(stringResource(R.string.register_step1_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Text(stringResource(R.string.register_step1_subtitle), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
@@ -207,7 +234,29 @@ fun StepOne(email: String, pass: String, onEmail: (String) -> Unit, onPass: (Str
             value = pass, onValueChange = onPass,
             label = { Text(stringResource(R.string.register_label_password)) },
             leadingIcon = { Icon(Icons.Outlined.Lock, null) },
-            visualTransformation = PasswordVisualTransformation(),
+            trailingIcon = {
+                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                IconButton(onClick = onTogglePasswordVisible) {
+                    Icon(imageVector = icon, contentDescription = description)
+                }
+            },
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth(), singleLine = true
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        OutlinedTextField(
+            value = confirmPass, onValueChange = onConfirmPass,
+            label = { Text(stringResource(R.string.register_label_confirm_password)) },
+            leadingIcon = { Icon(Icons.Outlined.Lock, null) },
+            trailingIcon = {
+                val icon = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                val description = if (confirmPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                IconButton(onClick = onToggleConfirmPasswordVisible) {
+                    Icon(imageVector = icon, contentDescription = description)
+                }
+            },
+            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(), singleLine = true
         )
     }
@@ -240,14 +289,21 @@ fun StepTwo(
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(stringResource(R.string.register_role_prompt), fontSize = 14.sp, fontWeight = FontWeight.Medium)
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Max),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             RoleOption(
                 title = stringResource(R.string.register_role_hire_title),
                 desc = stringResource(R.string.register_role_hire_desc),
                 icon = Icons.Default.Search,
                 selected = role == "CLIENT",
                 onClick = { onRole("CLIENT") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
             RoleOption(
                 title = stringResource(R.string.register_role_work_title),
@@ -255,7 +311,9 @@ fun StepTwo(
                 icon = Icons.Default.Work,
                 selected = role == "PROVIDER",
                 onClick = { onRole("PROVIDER") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
         }
     }

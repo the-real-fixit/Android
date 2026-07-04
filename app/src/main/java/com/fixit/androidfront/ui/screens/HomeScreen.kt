@@ -29,6 +29,9 @@ import com.fixit.androidfront.R
 import com.fixit.androidfront.data.Category
 import com.fixit.androidfront.data.JobPost
 import com.fixit.androidfront.ui.theme.*
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import com.fixit.androidfront.ui.viewmodels.HomeState
 import com.fixit.androidfront.ui.viewmodels.HomeViewModel
 
@@ -44,6 +47,22 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = viewModel()
 ) {
     val homeState by homeViewModel.homeState.collectAsState()
+    val isRefreshing by homeViewModel.isRefreshing.collectAsState()
+    val pullToRefreshState = rememberPullToRefreshState()
+
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            homeViewModel.fetchHomeData(isRefresh = true)
+        }
+    }
+
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
+        }
+    }
 
     LaunchedEffect(Unit) {
         homeViewModel.fetchHomeData()
@@ -64,59 +83,72 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        when (homeState) {
-            is HomeState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) { CircularProgressIndicator(color = PrimaryYellow) }
-            }
-            is HomeState.Error -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) { Text(text = (homeState as HomeState.Error).message, color = Color.Red) }
-            }
-            is HomeState.Success -> {
-                val state = homeState as HomeState.Success
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .nestedScroll(pullToRefreshState.nestedScrollConnection)
+        ) {
+            when (homeState) {
+                is HomeState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) { CircularProgressIndicator(color = PrimaryYellow) }
+                }
+                is HomeState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) { Text(text = (homeState as HomeState.Error).message, color = Color.Red) }
+                }
+                is HomeState.Success -> {
+                    val state = homeState as HomeState.Success
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(BackgroundGray)
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(vertical = 16.dp)
-                ) {
-                    item {
-                        val userName = state.profile?.name ?: stringResource(R.string.home_welcome_prefix)
-                        val userRole = state.profile?.role ?: ""
-                        WelcomeBanner(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            name = userName,
-                            role = userRole
-                        )
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(BackgroundGray),
+                        contentPadding = PaddingValues(vertical = 16.dp)
+                    ) {
+                        item {
+                            val userName = state.profile?.name ?: stringResource(R.string.home_welcome_prefix)
+                            val userRole = state.profile?.role ?: ""
+                            WelcomeBanner(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                name = userName,
+                                role = userRole
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
 
-                    item {
-                        PopularCategories(
-                            categories = state.categories,
-                            onNavigateToCategory = onNavigateToCategory
-                        )
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
+                        item {
+                            PopularCategories(
+                                categories = state.categories,
+                                onNavigateToCategory = onNavigateToCategory
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                        }
 
-                    item {
-                        HomeTabsAndAds(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            jobPosts = state.jobPosts,
-                            myAds = state.myAds,
-                            onNavigateToJobDetail = onNavigateToJobDetail
-                        )
+                        item {
+                            HomeTabsAndAds(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                jobPosts = state.jobPosts,
+                                myAds = state.myAds,
+                                onNavigateToJobDetail = onNavigateToJobDetail
+                            )
+                        }
                     }
                 }
+                else -> Unit
             }
-            else -> Unit
+
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }

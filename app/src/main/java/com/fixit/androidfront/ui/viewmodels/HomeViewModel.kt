@@ -26,13 +26,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val _homeState = MutableStateFlow<HomeState>(HomeState.Loading)
     val homeState: StateFlow<HomeState> = _homeState.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
     init {
         fetchHomeData()
     }
 
-    fun fetchHomeData() {
+    fun fetchHomeData(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _homeState.value = HomeState.Loading
+            if (isRefresh) {
+                _isRefreshing.value = true
+            } else {
+                _homeState.value = HomeState.Loading
+            }
             try {
                 // 1. Fetch Profile to know who is logged in and their role
                 val profileRes = appService.getProfile()
@@ -88,6 +95,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
             } catch (e: Exception) {
                 _homeState.value = HomeState.Error("Error de conexión: ${e.message}")
+            } finally {
+                _isRefreshing.value = false
             }
         }
     }

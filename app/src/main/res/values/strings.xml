@@ -38,6 +38,7 @@
     <string name="register_step1_subtitle">Ingresa tu correo y crea una contraseña segura.</string>
     <string name="register_label_email">Correo electrónico</string>
     <string name="register_label_password">Contraseña</string>
+    <string name="register_label_confirm_password">Repetir contraseña</string>
     <!-- Step 2 -->
     <string name="register_step2_title">Cuéntanos sobre ti</string>
     <string name="register_label_name">Nombre completo</string>
