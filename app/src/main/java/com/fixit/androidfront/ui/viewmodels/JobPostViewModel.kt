@@ -15,11 +15,21 @@ sealed class JobPostState {
     data class Error(val message: String) : JobPostState()
 }
 
+sealed class OfferSendState {
+    object Idle : OfferSendState()
+    object Loading : OfferSendState()
+    object Success : OfferSendState()
+    data class Error(val message: String) : OfferSendState()
+}
+
 class JobPostViewModel(application: Application) : AndroidViewModel(application) {
     private val appService = ApiClient.getAppService(application)
-    
+
     private val _jobPostState = MutableStateFlow<JobPostState>(JobPostState.Loading)
     val jobPostState: StateFlow<JobPostState> = _jobPostState.asStateFlow()
+
+    private val _offerSendState = MutableStateFlow<OfferSendState>(OfferSendState.Idle)
+    val offerSendState: StateFlow<OfferSendState> = _offerSendState.asStateFlow()
 
     fun fetchJobPost(id: String) {
         viewModelScope.launch {
@@ -35,5 +45,31 @@ class JobPostViewModel(application: Application) : AndroidViewModel(application)
                 _jobPostState.value = JobPostState.Error("Error de conexión: ${e.message}")
             }
         }
+    }
+
+    fun sendOffer(jobPostId: String, receiverId: String, description: String, price: Double) {
+        viewModelScope.launch {
+            _offerSendState.value = OfferSendState.Loading
+            try {
+                val body = SendOfferRequest(
+                    jobPostId = jobPostId,
+                    receiverId = receiverId,
+                    description = description,
+                    price = price
+                )
+                val response = appService.sendJobOffer(body)
+                if (response.isSuccessful) {
+                    _offerSendState.value = OfferSendState.Success
+                } else {
+                    _offerSendState.value = OfferSendState.Error("No se pudo enviar la propuesta")
+                }
+            } catch (e: Exception) {
+                _offerSendState.value = OfferSendState.Error("Error de conexión: ${e.message}")
+            }
+        }
+    }
+
+    fun resetOfferState() {
+        _offerSendState.value = OfferSendState.Idle
     }
 }

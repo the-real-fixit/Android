@@ -32,6 +32,9 @@ import com.fixit.androidfront.ui.theme.*
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.Manifest
 import com.fixit.androidfront.ui.viewmodels.HomeState
 import com.fixit.androidfront.ui.viewmodels.HomeViewModel
 
@@ -49,6 +52,29 @@ fun HomeScreen(
     val homeState by homeViewModel.homeState.collectAsState()
     val isRefreshing by homeViewModel.isRefreshing.collectAsState()
     val pullToRefreshState = rememberPullToRefreshState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Request location permissions once on first launch
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val granted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                      permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (!granted) {
+            // Permission denied — show informational snackbar
+        }
+    }
+
+    // Launch location permission request AND initial data load together
+    LaunchedEffect(Unit) {
+        locationPermissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+        homeViewModel.fetchHomeData()
+    }
 
     if (pullToRefreshState.isRefreshing) {
         LaunchedEffect(true) {
@@ -64,12 +90,9 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        homeViewModel.fetchHomeData()
-    }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             HomeTopBar(onNavigateToProfile = onNavigateToProfile)
         },

@@ -62,3 +62,17 @@ data class ProfileResponse(
     val email: String,
     val role: String
 )
+
+data class SendOfferRequest(
+    val jobPostId: String,
+    val receiverId: String,
+    val description: String,
+    val price: Double
+)
+
+data class JobOfferResponse(
+    val id: String,
+    val description: String,
+    val price: Double,
+    val status: String
+)

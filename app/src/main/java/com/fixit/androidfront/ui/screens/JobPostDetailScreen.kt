@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fixit.androidfront.ui.theme.*
 import com.fixit.androidfront.ui.viewmodels.JobPostViewModel
 import com.fixit.androidfront.ui.viewmodels.JobPostState
+import com.fixit.androidfront.ui.viewmodels.OfferSendState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +32,25 @@ fun JobPostDetailScreen(
     jobPostViewModel: JobPostViewModel = viewModel()
 ) {
     var showOfferDialog by remember { mutableStateOf(false) }
+    var offerMessage by remember { mutableStateOf("") }
+    var offerPrice by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
     val jobState by jobPostViewModel.jobPostState.collectAsState()
+    val offerSendState by jobPostViewModel.offerSendState.collectAsState()
 
     LaunchedEffect(jobId) {
         jobPostViewModel.fetchJobPost(jobId)
+    }
+
+    // Auto-close dialog on success, reset state
+    LaunchedEffect(offerSendState) {
+        if (offerSendState is OfferSendState.Success) {
+            showOfferDialog = false
+            offerMessage = ""
+            offerPrice = ""
+            jobPostViewModel.resetOfferState()
+        }
     }
 
     Scaffold(
@@ -66,7 +80,7 @@ fun JobPostDetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(BackgroundGray)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(paddingValues)
                     .verticalScroll(scrollState)
             ) {
@@ -76,10 +90,10 @@ fun JobPostDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(200.dp)
-                        .background(OutlineGray),
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(Icons.Default.Image, contentDescription = "Job Image", modifier = Modifier.size(64.dp), tint = TextGray)
+                    Icon(Icons.Default.Image, contentDescription = "Job Image", modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 // Main Info Card
@@ -87,7 +101,7 @@ fun JobPostDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -108,17 +122,17 @@ fun JobPostDetailScreen(
                             text = jobPost.title,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Black,
-                            color = TextDark
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
-                        val locStr = listOfNotNull(jobPost.municipality, jobPost.department).joinToString(", ").ifEmpty { jobPost.location }
-                        if (!locStr.isNullOrEmpty()) {
+                        val locStr = listOfNotNull(jobPost.municipality, jobPost.department).joinToString(", ").ifEmpty { jobPost.location ?: "" }
+                        if (locStr.isNotEmpty()) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Default.LocationOn, contentDescription = "Location", tint = Color.Red, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(locStr, fontSize = 14.sp, color = TextGray)
+                                Text(locStr, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                         }
@@ -138,15 +152,15 @@ fun JobPostDetailScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                         
-                        HorizontalDivider(color = OutlineGray)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        Text("Descripción del Anuncio", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                        Text("Descripción del Anuncio", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = jobPost.description,
                             fontSize = 16.sp,
-                            color = TextGray
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -156,12 +170,12 @@ fun JobPostDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        Text("AUTOR", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextGray)
+                        Text("AUTOR", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -169,20 +183,20 @@ fun JobPostDetailScreen(
                                 modifier = Modifier
                                     .size(56.dp)
                                     .clip(CircleShape)
-                                    .background(OutlineGray),
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(Icons.Default.Person, contentDescription = "User", tint = TextGray)
+                                Icon(Icons.Default.Person, contentDescription = "User", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Column {
-                                Text(jobPost.author.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextDark)
+                                Text(jobPost.author.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
                                 Row {
                                     val ratingStr = jobPost.author.profile?.rating?.toString() ?: "0.0"
                                     val jobsCount = jobPost.author.profile?.jobsCompleted ?: 0
                                     Icon(Icons.Default.Star, contentDescription = "Star", tint = PrimaryYellow, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("$ratingStr ($jobsCount trabajos)", fontSize = 12.sp, color = TextGray)
+                                    Text("$ratingStr ($jobsCount trabajos)", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
                         }
@@ -190,7 +204,10 @@ fun JobPostDetailScreen(
                         Spacer(modifier = Modifier.height(24.dp))
                         
                         Button(
-                            onClick = { showOfferDialog = true },
+                            onClick = {
+                                showOfferDialog = true
+                                jobPostViewModel.resetOfferState()
+                            },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow, contentColor = Color.Black),
                             shape = RoundedCornerShape(8.dp)
@@ -205,30 +222,90 @@ fun JobPostDetailScreen(
                 Spacer(modifier = Modifier.height(32.dp))
             }
             
+            // Offer dialog — now fully functional
             if (showOfferDialog) {
                 AlertDialog(
-                    onDismissRequest = { showOfferDialog = false },
+                    onDismissRequest = {
+                        if (offerSendState !is OfferSendState.Loading) {
+                            showOfferDialog = false
+                            jobPostViewModel.resetOfferState()
+                        }
+                    },
                     title = { Text("Propuesta de Trabajo", fontWeight = FontWeight.Bold) },
                     text = {
                         Column {
-                            Text("Para: ${jobPost.author.name}", fontSize = 14.sp, color = TextGray)
+                            Text("Para: ${jobPost.author.name}", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(16.dp))
+
                             OutlinedTextField(
-                                value = "", onValueChange = {},
+                                value = offerMessage,
+                                onValueChange = { offerMessage = it },
                                 label = { Text("Mensaje o Propuesta") },
+                                placeholder = { Text("Describe tu propuesta...") },
                                 modifier = Modifier.fillMaxWidth(),
-                                minLines = 3
+                                minLines = 3,
+                                maxLines = 6,
+                                enabled = offerSendState !is OfferSendState.Loading
                             )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            OutlinedTextField(
+                                value = offerPrice,
+                                onValueChange = { v ->
+                                    // only allow numeric + one decimal point
+                                    if (v.isEmpty() || v.matches(Regex("^\\d*\\.?\\d*$"))) offerPrice = v
+                                },
+                                label = { Text("Precio ofrecido (Q)") },
+                                placeholder = { Text("Ej: 250.00") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                enabled = offerSendState !is OfferSendState.Loading
+                            )
+
+                            if (offerSendState is OfferSendState.Error) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = (offerSendState as OfferSendState.Error).message,
+                                    color = MaterialTheme.colorScheme.error,
+                                    fontSize = 12.sp
+                                )
+                            }
                         }
                     },
                     confirmButton = {
-                        TextButton(onClick = { showOfferDialog = false }) {
-                            Text("Enviar", color = YellowDark, fontWeight = FontWeight.Bold)
+                        val isSending = offerSendState is OfferSendState.Loading
+                        val canSend = offerMessage.isNotBlank() && offerPrice.isNotBlank() && !isSending
+
+                        Button(
+                            onClick = {
+                                val price = offerPrice.toDoubleOrNull() ?: 0.0
+                                jobPostViewModel.sendOffer(
+                                    jobPostId = jobPost.id,
+                                    receiverId = jobPost.author.id,
+                                    description = offerMessage.trim(),
+                                    price = price
+                                )
+                            },
+                            enabled = canSend,
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow, contentColor = Color.Black)
+                        ) {
+                            if (isSending) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), color = Color.Black, strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            Text("Enviar", fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showOfferDialog = false }) {
-                            Text("Cancelar", color = TextGray)
+                        TextButton(
+                            onClick = {
+                                showOfferDialog = false
+                                jobPostViewModel.resetOfferState()
+                            },
+                            enabled = offerSendState !is OfferSendState.Loading
+                        ) {
+                            Text("Cancelar", color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 )
