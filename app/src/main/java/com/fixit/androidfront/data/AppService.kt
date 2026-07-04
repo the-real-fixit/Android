@@ -30,6 +30,6 @@ interface AppService {
     @GET("users/profile")
     suspend fun getProfile(): Response<ProfileResponse>
 
-    @POST("job-offers")
-    suspend fun sendJobOffer(@Body body: SendOfferRequest): Response<JobOfferResponse>
+    @POST("job-posts/{id}/offer")
+    suspend fun sendJobOffer(@Path("id") id: String, @Body body: SendOfferRequest): Response<JobOfferResponse>
 }

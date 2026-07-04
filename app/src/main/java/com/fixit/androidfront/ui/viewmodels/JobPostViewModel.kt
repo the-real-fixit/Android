@@ -57,7 +57,7 @@ class JobPostViewModel(application: Application) : AndroidViewModel(application)
                     description = description,
                     price = price
                 )
-                val response = appService.sendJobOffer(body)
+                val response = appService.sendJobOffer(jobPostId, body)
                 if (response.isSuccessful) {
                     _offerSendState.value = OfferSendState.Success
                 } else {
