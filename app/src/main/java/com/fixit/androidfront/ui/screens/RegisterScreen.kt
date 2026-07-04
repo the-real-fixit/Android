@@ -55,7 +55,7 @@ fun RegisterScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(BackgroundGray)
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp)
             .verticalScroll(scrollState),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -75,16 +75,16 @@ fun RegisterScreen(
             text = stringResource(R.string.register_title),
             fontSize = 24.sp,
             fontWeight = FontWeight.ExtraBold,
-            color = TextDark
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Row {
-            Text(stringResource(R.string.register_subtitle_prefix), color = TextGray, fontSize = 14.sp)
+            Text(stringResource(R.string.register_subtitle_prefix), color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f), fontSize = 14.sp)
             Text(
                 text = stringResource(R.string.register_subtitle_link),
-                color = YellowDark,
+                color = MaterialTheme.colorScheme.secondary,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.clickable { onBack() }
@@ -104,7 +104,7 @@ fun RegisterScreen(
                             .height(8.dp)
                             .width(if (i <= step) 32.dp else 16.dp)
                             .background(
-                                if (i <= step) PrimaryYellow else OutlineGray,
+                                if (i <= step) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
                                 RoundedCornerShape(4.dp)
                             )
                     )
@@ -118,7 +118,7 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .widthIn(max = 450.dp),
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
@@ -146,7 +146,7 @@ fun RegisterScreen(
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(stringResource(R.string.register_btn_back), color = TextGray)
+                            Text(stringResource(R.string.register_btn_back), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
                         }
                     } else {
                         Spacer(modifier = Modifier.width(8.dp))
@@ -166,8 +166,8 @@ fun RegisterScreen(
                         },
                         enabled = canAdvance,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = PrimaryYellow,
-                            contentColor = Color.Black
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
@@ -192,8 +192,8 @@ fun RegisterScreen(
 @Composable
 fun StepOne(email: String, pass: String, onEmail: (String) -> Unit, onPass: (String) -> Unit) {
     Column {
-        Text(stringResource(R.string.register_step1_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextDark)
-        Text(stringResource(R.string.register_step1_subtitle), fontSize = 14.sp, color = TextGray)
+        Text(stringResource(R.string.register_step1_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+        Text(stringResource(R.string.register_step1_subtitle), fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -219,7 +219,7 @@ fun StepTwo(
     onName: (String) -> Unit, onPhone: (String) -> Unit, onRole: (String) -> Unit
 ) {
     Column {
-        Text(stringResource(R.string.register_step2_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextDark)
+        Text(stringResource(R.string.register_step2_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -268,10 +268,12 @@ fun RoleOption(
     selected: Boolean, onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val selectedColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+    val unselectedColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
     Card(
         modifier = modifier.clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = if (selected) Color(0xFFFEF9C3) else BackgroundGray),
-        border = androidx.compose.foundation.BorderStroke(2.dp, if (selected) YellowDark else OutlineGray)
+        colors = CardDefaults.cardColors(containerColor = if (selected) selectedColor else unselectedColor),
+        border = androidx.compose.foundation.BorderStroke(2.dp, if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outlineVariant)
     ) {
         Column(
             modifier = Modifier
@@ -279,10 +281,10 @@ fun RoleOption(
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icon, null, tint = if (selected) YellowDark else TextGray, modifier = Modifier.size(32.dp))
+            Icon(icon, null, tint = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier.size(32.dp))
             Spacer(modifier = Modifier.height(8.dp))
-            Text(title, fontWeight = FontWeight.Bold, color = if (selected) YellowDark else TextDark)
-            Text(desc, fontSize = 10.sp, color = TextGray)
+            Text(title, fontWeight = FontWeight.Bold, color = if (selected) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface)
+            Text(desc, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
         }
     }
 }
@@ -290,7 +292,7 @@ fun RoleOption(
 @Composable
 fun StepThree(hasVehicle: Boolean, canTravel: Boolean, onVehicle: (Boolean) -> Unit, onTravel: (Boolean) -> Unit) {
     Column {
-        Text(stringResource(R.string.register_step3_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextDark)
+        Text(stringResource(R.string.register_step3_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -311,7 +313,7 @@ fun StepThree(hasVehicle: Boolean, canTravel: Boolean, onVehicle: (Boolean) -> U
         ) {
             Checkbox(
                 checked = hasVehicle, onCheckedChange = onVehicle,
-                colors = CheckboxDefaults.colors(checkedColor = PrimaryYellow)
+                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
             )
             Text(stringResource(R.string.register_check_vehicle), fontSize = 14.sp)
         }
@@ -323,7 +325,7 @@ fun StepThree(hasVehicle: Boolean, canTravel: Boolean, onVehicle: (Boolean) -> U
         ) {
             Checkbox(
                 checked = canTravel, onCheckedChange = onTravel,
-                colors = CheckboxDefaults.colors(checkedColor = PrimaryYellow)
+                colors = CheckboxDefaults.colors(checkedColor = MaterialTheme.colorScheme.primary)
             )
             Text(stringResource(R.string.register_check_travel), fontSize = 14.sp)
         }
