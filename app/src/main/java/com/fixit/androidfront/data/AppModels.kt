@@ -64,8 +64,6 @@ data class ProfileResponse(
 )
 
 data class SendOfferRequest(
-    val jobPostId: String,
-    val receiverId: String,
     val description: String,
     val price: Double
 )
@@ -75,4 +73,26 @@ data class JobOfferResponse(
     val description: String,
     val price: Double,
     val status: String
+)
+
+data class JobPostCreateRequest(
+    val title: String,
+    val description: String,
+    val budget: String?,
+    val location: String?,
+    val department: String?,
+    val municipality: String?,
+    val lat: Double?,
+    val lng: Double?,
+    val categoryId: String?,
+    val photos: List<String>
+)
+
+data class CloudinarySignatureResponse(
+    val signature: String,
+    val timestamp: Long,
+    val apiKey: String,
+    val cloudName: String,
+    val folder: String,
+    val resourceType: String
 )

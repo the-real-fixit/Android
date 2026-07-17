@@ -37,6 +37,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import android.Manifest
 import com.fixit.androidfront.ui.viewmodels.HomeState
 import com.fixit.androidfront.ui.viewmodels.HomeViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,6 +48,7 @@ fun HomeScreen(
     onNavigateToCreateJob: () -> Unit = {},
     onNavigateToJobDetail: (String) -> Unit = {},
     onNavigateToChat: () -> Unit = {},
+    onLogout: () -> Unit = {},
     homeViewModel: HomeViewModel = viewModel()
 ) {
     val homeState by homeViewModel.homeState.collectAsState()
@@ -90,12 +92,45 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            HomeTopBar(onNavigateToProfile = onNavigateToProfile)
-        },
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(16.dp))
+                NavigationDrawerItem(
+                    label = { Text("Mi Perfil") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onNavigateToProfile()
+                    },
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Cerrar Sesión") },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        onLogout()
+                    },
+                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            modifier = modifier.fillMaxSize(),
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                HomeTopBar(
+                    onOpenDrawer = { scope.launch { drawerState.open() } }
+                )
+            },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToCreateJob,
@@ -174,10 +209,11 @@ fun HomeScreen(
             )
         }
     }
+    }
 }
 
 @Composable
-fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
+fun HomeTopBar(onOpenDrawer: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -189,29 +225,20 @@ fun HomeTopBar(onNavigateToProfile: () -> Unit = {}) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = stringResource(R.string.home_app_title),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = TextDark
-            )
-
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = stringResource(R.string.home_cd_profile),
-                    modifier = Modifier
-                        .size(28.dp)
-                        .clickable { onNavigateToProfile() },
-                    tint = TextDark
-                )
-                Spacer(modifier = Modifier.width(16.dp))
+                IconButton(onClick = onOpenDrawer) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menu",
+                        tint = TextDark
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.home_btn_logout),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark,
-                    modifier = Modifier.clickable { /* TODO */ }
+                    text = stringResource(R.string.home_app_title),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = TextDark
                 )
             }
         }

@@ -42,12 +42,19 @@ fun FixItNavigation() {
             )
         }
         composable("app") {
+            val context = androidx.compose.ui.platform.LocalContext.current
             com.fixit.androidfront.ui.screens.HomeScreen(
                 onNavigateToProfile = { navController.navigate("profile") },
                 onNavigateToCategory = { id -> navController.navigate("category/$id") },
                 onNavigateToCreateJob = { navController.navigate("create_job") },
                 onNavigateToJobDetail = { id -> navController.navigate("job_detail/$id") },
-                onNavigateToChat = { navController.navigate("chat") }
+                onNavigateToChat = { navController.navigate("chat") },
+                onLogout = {
+                    com.fixit.androidfront.data.SessionManager(context).clearSession()
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
         composable("profile") {

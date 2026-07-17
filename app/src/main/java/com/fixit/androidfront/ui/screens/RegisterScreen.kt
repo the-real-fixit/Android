@@ -29,13 +29,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fixit.androidfront.R
 import com.fixit.androidfront.ui.theme.*
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fixit.androidfront.ui.viewmodels.RegisterViewModel
+import com.fixit.androidfront.ui.viewmodels.RegisterState
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onBack: () -> Unit,
-    onRegisterSuccess: () -> Unit
+    onRegisterSuccess: () -> Unit,
+    registerViewModel: RegisterViewModel = viewModel()
 ) {
+    val categories = listOf(
+        com.fixit.androidfront.data.Category(id = "c1", name = "Electricista"),
+        com.fixit.androidfront.data.Category(id = "c2", name = "Plomería"),
+        com.fixit.androidfront.data.Category(id = "c3", name = "Pintura"),
+        com.fixit.androidfront.data.Category(id = "c4", name = "Carpintería"),
+        com.fixit.androidfront.data.Category(id = "c5", name = "Mudanza"),
+        com.fixit.androidfront.data.Category(id = "c6", name = "Jardinería"),
+        com.fixit.androidfront.data.Category(id = "c7", name = "Técnico"),
+        com.fixit.androidfront.data.Category(id = "c8", name = "Albañil"),
+        com.fixit.androidfront.data.Category(id = "c9", name = "Limpieza")
+    )
     var step by remember { mutableIntStateOf(1) }
     var role by remember { mutableStateOf("") }
 
@@ -49,12 +64,22 @@ fun RegisterScreen(
     // Step 2
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
+    var phoneCode by remember { mutableStateOf("+502") }
 
     // Step 3
+    var selectedCategoryIds by remember { mutableStateOf(setOf<String>()) }
     var hasVehicle by remember { mutableStateOf(false) }
     var canTravel by remember { mutableStateOf(false) }
 
     val scrollState = rememberScrollState()
+    val registerState by registerViewModel.registerState.collectAsState()
+
+    LaunchedEffect(registerState) {
+        if (registerState is RegisterState.Success) {
+            onRegisterSuccess()
+            registerViewModel.resetState()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -136,15 +161,30 @@ fun RegisterScreen(
                             confirmPass = confirmPassword,
                             passwordVisible = passwordVisible,
                             confirmPasswordVisible = confirmPasswordVisible,
-                            onEmail = { email = it },
-                            onPass = { password = it },
-                            onConfirmPass = { confirmPassword = it },
+                            onEmail = { email = it.trim() },
+                            onPass = { password = it.trim() },
+                            onConfirmPass = { confirmPassword = it.trim() },
                             onTogglePasswordVisible = { passwordVisible = !passwordVisible },
                             onToggleConfirmPasswordVisible = { confirmPasswordVisible = !confirmPasswordVisible }
                         )
-                        2 -> StepTwo(name, phone, role, { name = it }, { phone = it }, { role = it })
-                        3 -> StepThree(hasVehicle, canTravel, { hasVehicle = it }, { canTravel = it })
+                        2 -> StepTwo(name, phone, phoneCode, role, { name = it }, { phone = it.trim() }, { phoneCode = it }, { role = it })
+                        3 -> StepThree(hasVehicle, canTravel, categories, selectedCategoryIds, { hasVehicle = it }, { canTravel = it }, {
+                            selectedCategoryIds = if (selectedCategoryIds.contains(it)) {
+                                selectedCategoryIds - it
+                            } else {
+                                selectedCategoryIds + it
+                            }
+                        })
                     }
+                }
+
+                if (registerState is RegisterState.Error) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = (registerState as RegisterState.Error).message,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -175,17 +215,27 @@ fun RegisterScreen(
 
                     val isLastStep = (step == 3) || (step == 2 && role == "CLIENT")
 
+                    val isLoading = registerState is RegisterState.Loading
+
                     Button(
                         onClick = {
-                            if (isLastStep) onRegisterSuccess() else step++
+                            if (isLastStep) {
+                                registerViewModel.register(email, password, name, role)
+                            } else {
+                                step++
+                            }
                         },
-                        enabled = canAdvance,
+                        enabled = canAdvance && !isLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
                         Text(
                             if (isLastStep) stringResource(R.string.register_btn_submit)
                             else stringResource(R.string.register_btn_next),
@@ -261,11 +311,15 @@ fun StepOne(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StepTwo(
-    name: String, phone: String, role: String,
-    onName: (String) -> Unit, onPhone: (String) -> Unit, onRole: (String) -> Unit
+    name: String, phone: String, phoneCode: String, role: String,
+    onName: (String) -> Unit, onPhone: (String) -> Unit, onPhoneCode: (String) -> Unit, onRole: (String) -> Unit
 ) {
+    val phoneCodes = listOf("+502", "+1", "+52", "+503", "+504", "+505", "+506", "+507", "+34")
+    var expanded by remember { mutableStateOf(false) }
+
     Column {
         Text(stringResource(R.string.register_step2_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(16.dp))
@@ -278,13 +332,46 @@ fun StepTwo(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = phone, onValueChange = onPhone,
-            label = { Text(stringResource(R.string.register_label_phone)) },
-            leadingIcon = { Icon(Icons.Default.Phone, null) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth(), singleLine = true
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.weight(0.4f)
+            ) {
+                OutlinedTextField(
+                    value = phoneCode,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    phoneCodes.forEach { code ->
+                        DropdownMenuItem(
+                            text = { Text(code) },
+                            onClick = {
+                                onPhoneCode(code)
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedTextField(
+                value = phone, onValueChange = onPhone,
+                label = { Text(stringResource(R.string.register_label_phone)) },
+                leadingIcon = { Icon(Icons.Default.Phone, null) },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                modifier = Modifier.weight(0.6f), singleLine = true
+            )
+        }
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(stringResource(R.string.register_role_prompt), fontSize = 14.sp, fontWeight = FontWeight.Medium)
@@ -346,18 +433,39 @@ fun RoleOption(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun StepThree(hasVehicle: Boolean, canTravel: Boolean, onVehicle: (Boolean) -> Unit, onTravel: (Boolean) -> Unit) {
+fun StepThree(
+    hasVehicle: Boolean, 
+    canTravel: Boolean, 
+    categories: List<com.fixit.androidfront.data.Category>, 
+    selectedCategoryIds: Set<String>, 
+    onVehicle: (Boolean) -> Unit, 
+    onTravel: (Boolean) -> Unit,
+    onToggleCategory: (String) -> Unit
+) {
     Column {
         Text(stringResource(R.string.register_step3_title), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = "", onValueChange = {},
-            label = { Text(stringResource(R.string.register_label_specialty)) },
-            enabled = false,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Text(stringResource(R.string.register_label_specialty), fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        Text("Puedes seleccionar varias especialidades ahora y modificarlas más adelante en tu perfil.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            categories.forEach { category ->
+                val selected = selectedCategoryIds.contains(category.id)
+                FilterChip(
+                    selected = selected,
+                    onClick = { onToggleCategory(category.id) },
+                    label = { Text(category.name) }
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
         Text(stringResource(R.string.register_label_mobility), fontSize = 14.sp, fontWeight = FontWeight.Medium)

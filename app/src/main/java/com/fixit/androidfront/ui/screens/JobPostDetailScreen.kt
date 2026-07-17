@@ -23,6 +23,8 @@ import com.fixit.androidfront.ui.theme.*
 import com.fixit.androidfront.ui.viewmodels.JobPostViewModel
 import com.fixit.androidfront.ui.viewmodels.JobPostState
 import com.fixit.androidfront.ui.viewmodels.OfferSendState
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,7 +36,9 @@ fun JobPostDetailScreen(
     var showOfferDialog by remember { mutableStateOf(false) }
     var offerMessage by remember { mutableStateOf("") }
     var offerPrice by remember { mutableStateOf("") }
+    var hasSentOffer by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
 
     val jobState by jobPostViewModel.jobPostState.collectAsState()
     val offerSendState by jobPostViewModel.offerSendState.collectAsState()
@@ -47,8 +51,10 @@ fun JobPostDetailScreen(
     LaunchedEffect(offerSendState) {
         if (offerSendState is OfferSendState.Success) {
             showOfferDialog = false
+            hasSentOffer = true
             offerMessage = ""
             offerPrice = ""
+            Toast.makeText(context, "Ya has enviado una propuesta", Toast.LENGTH_SHORT).show()
             jobPostViewModel.resetOfferState()
         }
     }
@@ -203,18 +209,32 @@ fun JobPostDetailScreen(
                         
                         Spacer(modifier = Modifier.height(24.dp))
                         
-                        Button(
-                            onClick = {
-                                showOfferDialog = true
-                                jobPostViewModel.resetOfferState()
-                            },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow, contentColor = Color.Black),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Icon(Icons.Default.Description, contentDescription = "Offer", modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Enviar Propuesta / Mensaje", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        if (hasSentOffer) {
+                            Button(
+                                onClick = { },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+                                shape = RoundedCornerShape(8.dp),
+                                enabled = false
+                            ) {
+                                Icon(Icons.Default.Check, contentDescription = "Sent", modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Ya has enviado una propuesta", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                        } else {
+                            Button(
+                                onClick = {
+                                    showOfferDialog = true
+                                    jobPostViewModel.resetOfferState()
+                                },
+                                modifier = Modifier.fillMaxWidth().height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryYellow, contentColor = Color.Black),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Icon(Icons.Default.Description, contentDescription = "Offer", modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Enviar Propuesta / Mensaje", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
                         }
                     }
                 }

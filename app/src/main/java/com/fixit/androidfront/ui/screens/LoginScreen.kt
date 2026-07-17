@@ -8,6 +8,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.*
@@ -21,6 +23,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,6 +44,7 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val loginState by loginViewModel.loginState.collectAsState()
 
@@ -179,8 +183,19 @@ fun LoginScreen(
                                 tint = Color.Gray
                             )
                         },
+                        trailingIcon = {
+                            val image = if (passwordVisible)
+                                Icons.Filled.Visibility
+                            else Icons.Filled.VisibilityOff
+
+                            val description = if (passwordVisible) "Hide password" else "Show password"
+
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description, tint = Color.Gray)
+                            }
+                        },
                         singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         shape = RoundedCornerShape(8.dp)
                     )

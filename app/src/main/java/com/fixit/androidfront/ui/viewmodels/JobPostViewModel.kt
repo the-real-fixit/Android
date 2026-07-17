@@ -52,8 +52,6 @@ class JobPostViewModel(application: Application) : AndroidViewModel(application)
             _offerSendState.value = OfferSendState.Loading
             try {
                 val body = SendOfferRequest(
-                    jobPostId = jobPostId,
-                    receiverId = receiverId,
                     description = description,
                     price = price
                 )
@@ -61,7 +59,8 @@ class JobPostViewModel(application: Application) : AndroidViewModel(application)
                 if (response.isSuccessful) {
                     _offerSendState.value = OfferSendState.Success
                 } else {
-                    _offerSendState.value = OfferSendState.Error("No se pudo enviar la propuesta")
+                    val errBody = response.errorBody()?.string()
+                    _offerSendState.value = OfferSendState.Error(errBody ?: "No se pudo enviar la propuesta")
                 }
             } catch (e: Exception) {
                 _offerSendState.value = OfferSendState.Error("Error de conexión: ${e.message}")
